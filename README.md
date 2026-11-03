@@ -16,10 +16,10 @@ Este proyecto documenta la construcción de un entorno de **Security Operations 
 - Se instaló y vinculó el agente de Wazuh en el sistema Windows mediante PowerShell apuntando al manager local.
 
 ### 1. Initial Dashboard State
-![Wazuh Initial Dashboard](images/01-wazuh-dashboard-overview.png)
+![Wazuh Initial Dashboard](docs/images/01-wazuh-dashboard-overview.png)
 
 ### 2. Active Agent Verification (Windows-PC)
-![Wazuh Active Agent](images/01-wazuh-agent-active-windows-pc.png)
+![Wazuh Active Agent](docs/images/01-wazuh-agent-active-windows-pc.png)
 
 ---
 
@@ -28,7 +28,7 @@ Este proyecto documenta la construcción de un entorno de **Security Operations 
 - Se modificó el archivo de configuración del agente (`ossec.conf`) para incorporar la lectura del canal operacional de Sysmon (`Microsoft-Windows-Sysmon/Operational`).
 
 ### Sysmon Telemetry Flow & Threat Mapping
-![Sysmon Integration](images/02-wazuh-sysmon-integration.png)
+![Sysmon Integration](docs/images/02-wazuh-sysmon-integration.png)
 
 ---
 
