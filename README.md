@@ -32,6 +32,18 @@ Este proyecto documenta la construcción de un entorno de **Security Operations 
 
 ---
 
+## ⚡ Phase 3: Attack Simulation & Threat Detection (MITRE ATT&CK)
+Para validar la efectividad de la telemetría de Sysmon integrada en Wazuh, se simuló una fase de **Reconocimiento y Descubrimiento** ejecutando comandos nativos de Windows en el endpoint:
+
+- Enumeración de cuentas: `net user`
+- Recopilación de info del sistema: `systeminfo`
+- Auditoría de tareas programadas: `schtasks /query /fo LIST`
+
+### Dashboard Alert & MITRE Mapping Verification
+![Threat Hunting Alerts](images/03-wazuh-threat-hunting-alerts.png)
+
+---
+
 ## 🛠️ Next Steps
 - [ ] Simulación de ataques de prueba (técnicas de descubrimiento e inyección de procesos).
 - [ ] Creación de reglas personalizadas en Wazuh y alertas basadas en MITRE ATT&CK.
