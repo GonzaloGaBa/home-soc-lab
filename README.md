@@ -42,8 +42,28 @@ Para validar la efectividad de la telemetría de Sysmon integrada en Wazuh, se s
 ### Dashboard Alert & MITRE Mapping Verification
 ![Threat Hunting Alerts](images/03-wazuh-threat-hunting-alerts.png)
 
+### Filtered Events Audit (Rule 92052)
+![Filtered Events](images/03-wazuh-threat-hunting-events-filtered.png)
+
 ---
 
-## 🛠️ Next Steps
-- [ ] Simulación de ataques de prueba (técnicas de descubrimiento e inyección de procesos).
-- [ ] Creación de reglas personalizadas en Wazuh y alertas basadas en MITRE ATT&CK.
+## 🔍 Phase 4: Custom Detection Rule (Sigma & Wazuh Integration)
+Para elevar la severidad y mejorar la respuesta ante actividades de reconocimiento en el endpoint, se diseñó una regla de detección personalizada en formato **Sigma (YAML)** y su adaptación nativa en Wazuh (`local_rules.xml`).
+
+- **Tácticas MITRE ATT&CK:** Discovery (T1087 - Account Discovery, T1082 - System Information Discovery)
+- **Nivel de Severidad:** Level 8
+- **Regla Sigma (YAML):** [`rules/detect-recon-discovery.yml`](rules/detect-recon-discovery.yml)
+
+### Integración Nativa en Wazuh (`local_rules.xml`)
+```xml
+<group name="sysmon,reconnaissance,custom_soc_lab,">
+  <rule id="100001" level="8">
+    <if_sid>92052</if_sid>
+    <field name="win.eventdata.commandLine" type="pcre2">(?i)(net user|systeminfo|schtasks)</field>
+    <description>SOC Lab Alert: Reconnaissance Activity Detected via PowerShell/CMD</description>
+    <mitre>
+      <id>T1087</id>
+      <id>T1082</id>
+    </mitre>
+  </rule>
+</group>
