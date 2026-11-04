@@ -58,3 +58,7 @@ Se diseñaron reglas de detección personalizadas para elevar la severidad ante 
 
 ### 2. AI SOC Triage Integration (SOC Copilot)
 Se implementó un script de automatización en Python ([`scripts/ai_soc_triage.py`](scripts/ai_soc_triage.py)) para procesar los eventos de seguridad en tiempo real y generar resúmenes ejecutivos con recomendaciones para analistas L1.
+
+#### 🎬 Demostración de Ejecución en Vivo
+
+![AI SOC Copilot Demo](images/ai-soc-demo.gif)
