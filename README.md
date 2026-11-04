@@ -47,12 +47,17 @@ Para validar la efectividad de la telemetría de Sysmon integrada en Wazuh, se s
 
 ---
 
-## 🔍 Phase 4: Custom Detection Rule (Sigma & Wazuh Integration)
-Para elevar la severidad y mejorar la respuesta ante actividades de reconocimiento en el endpoint, se diseñó una regla de detección personalizada en formato **Sigma (YAML)** y su adaptación nativa en Wazuh (`local_rules.xml`).
+## 🔍 Phase 4: Custom Detection Rule & AI Triage Copilot
 
+### 1. Custom Rules & Detection Engineering
+Se diseñaron reglas de detección personalizadas para elevar la severidad ante actividades de reconocimiento:
 - **Tácticas MITRE ATT&CK:** Discovery (T1087 - Account Discovery, T1082 - System Information Discovery)
 - **Nivel de Severidad:** Level 8
 - **Regla Sigma (YAML):** [`rules/detect-recon-discovery.yml`](rules/detect-recon-discovery.yml)
+- **Regla Nativa Wazuh (XML):** [`rules/local_rules.xml`](rules/local_rules.xml)
+
+### 2. AI SOC Triage Integration (SOC Copilot)
+Se implementó un script de automatización en Python ([`scripts/ai_soc_triage.py`](scripts/ai_soc_triage.py)) para procesar los eventos de seguridad en tiempo real y generar resúmenes ejecutivos con recomendaciones para analistas L1.
 
 ### Integración Nativa en Wazuh (`local_rules.xml`)
 ```xml
