@@ -1,0 +1,27 @@
+title: System Reconnaissance and Discovery Commands Execution
+id: f47ac10b-58cc-4372-a567-0e02b2c3d479
+status: experimental
+description: Detects execution of basic discovery commands (net user, systeminfo, schtasks) via PowerShell or CMD captured by Sysmon Event ID 1.
+references:
+  - https://attack.mitre.org/techniques/T1087/
+  - https://attack.mitre.org/techniques/T1082/
+author: Gonzalo Barrientos
+date: 2026-11-03
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection:
+    EventID: 1
+    CommandLine|contains:
+      - 'net user'
+      - 'systeminfo'
+      - 'schtasks /query'
+  condition: selection
+falsepositives:
+  - Legitimate administrative scripts or system management tools.
+level: medium
+tags:
+  - attack.discovery
+  - attack.t1087
+  - attack.t1082
