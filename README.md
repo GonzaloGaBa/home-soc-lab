@@ -58,17 +58,3 @@ Se diseñaron reglas de detección personalizadas para elevar la severidad ante 
 
 ### 2. AI SOC Triage Integration (SOC Copilot)
 Se implementó un script de automatización en Python ([`scripts/ai_soc_triage.py`](scripts/ai_soc_triage.py)) para procesar los eventos de seguridad en tiempo real y generar resúmenes ejecutivos con recomendaciones para analistas L1.
-
-### Integración Nativa en Wazuh (`local_rules.xml`)
-```xml
-<group name="sysmon,reconnaissance,custom_soc_lab,">
-  <rule id="100001" level="8">
-    <if_sid>92052</if_sid>
-    <field name="win.eventdata.commandLine" type="pcre2">(?i)(net user|systeminfo|schtasks)</field>
-    <description>SOC Lab Alert: Reconnaissance Activity Detected via PowerShell/CMD</description>
-    <mitre>
-      <id>T1087</id>
-      <id>T1082</id>
-    </mitre>
-  </rule>
-</group>
