@@ -1,0 +1,20 @@
+<!-- 
+  Custom Rules for Home SOC Lab
+  Wazuh Manager - local_rules.xml
+  Mitre ATT&CK Mapping: T1087 (Account Discovery), T1082 (System Information Discovery)
+-->
+
+<group name="sysmon,reconnaissance,custom_soc_lab,">
+  
+  <!-- Regla personalizada para detectar comandos de reconocimiento y descubrimiento en el endpoint -->
+  <rule id="100001" level="8">
+    <if_sid>92052</if_sid>
+    <field name="win.eventdata.commandLine" type="pcre2">(?i)(net user|systeminfo|schtasks)</field>
+    <description>SOC Lab Alert: Reconnaissance Activity Detected via PowerShell/CMD</description>
+    <mitre>
+      <id>T1087</id>
+      <id>T1082</id>
+    </mitre>
+  </rule>
+
+</group>
