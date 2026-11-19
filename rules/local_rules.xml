@@ -1,20 +1,71 @@
-<!-- 
+<!--
   Custom Rules for Home SOC Lab
-  Wazuh Manager - local_rules.xml
-  Mitre ATT&CK Mapping: T1087 (Account Discovery), T1082 (System Information Discovery)
+  Wazuh Manager - /var/ossec/etc/rules/local_rules.xml
+
+  Reglas validadas con comandos reales en el endpoint Windows (agente 001):
+    - 100001: "net user" / "net1 user"  -> T1087.001 (Account Discovery: Local Account)
+    - 100002: "systeminfo"              -> T1082     (System Information Discovery)
+    - 100003 / 100004: exclusiones (nivel 0) para el ruido del propio agente de Wazuh
+
+  Ajuste de falsos positivos:
+    El agente ejecuta "net user guest" y "net user administrator" como SYSTEM en sus
+    chequeos de configuracion (SCA). Cada comando genera dos eventos: net.exe (padre:
+    wazuh-agent.exe) y su hijo net1.exe (padre: net.exe). Por eso hay dos exclusiones:
+      - 100003: net.exe lanzado por wazuh-agent.exe como SYSTEM.
+      - 100004: net1.exe lanzado por net.exe (SysWOW64, porque el agente es de 32 bits)
+                como SYSTEM, con directorio de trabajo dentro de ossec-agent.
+
+    Nota: Wazuh guarda las rutas de Windows con las barras invertidas duplicadas
+    (C:\\Windows\\System32\\net.exe), por eso las expresiones usan "\\+" (una o mas barras).
+
+  Limitaciones:
+    - 100001 depende de la regla 92031 de Wazuh (net.exe / net1.exe), por lo que
+      solo evalua eventos que esa regla ya haya reconocido.
+    - 100002 compara OriginalFileName (sysinfo.exe), el nombre interno de systeminfo.exe,
+      de modo que sigue detectando aunque el ejecutable sea renombrado.
+    - Las exclusiones se basan en la ruta del agente y en el usuario SYSTEM: un atacante
+      con privilegios de SYSTEM que lance "net user" desde ese directorio no generaria alerta.
+    - schtasks, whoami, tasklist y otras variantes de descubrimiento no estan cubiertos.
+    - Cada evento se evalua individualmente; no hay correlacion de secuencias.
 -->
 
 <group name="sysmon,reconnaissance,custom_soc_lab,">
-  
-  <!-- Regla personalizada para detectar comandos de reconocimiento y descubrimiento en el endpoint -->
+
+  <!-- net user / net1 user: enumeracion de cuentas locales -->
   <rule id="100001" level="8">
-    <if_sid>92052</if_sid>
-    <field name="win.eventdata.commandLine" type="pcre2">(?i)(net user|systeminfo|schtasks)</field>
-    <description>SOC Lab Alert: Reconnaissance Activity Detected via PowerShell/CMD</description>
+    <if_sid>92031</if_sid>
+    <field name="win.eventdata.commandLine" type="pcre2">(?i)net1?\s+user\b</field>
+    <description>SOC Lab Alert: Local account enumeration ($(win.eventdata.commandLine))</description>
     <mitre>
-      <id>T1087</id>
+      <id>T1087.001</id>
+    </mitre>
+  </rule>
+
+  <!-- systeminfo.exe: su OriginalFileName interno es sysinfo.exe -->
+  <rule id="100002" level="6">
+    <if_group>sysmon_event1</if_group>
+    <field name="win.eventdata.originalFileName" type="pcre2">(?i)^sysinfo\.exe$</field>
+    <description>SOC Lab Alert: System information discovery ($(win.eventdata.commandLine))</description>
+    <mitre>
       <id>T1082</id>
     </mitre>
+  </rule>
+
+  <!-- Exclusion: net.exe lanzado por el agente de Wazuh como SYSTEM -->
+  <rule id="100003" level="0">
+    <if_sid>100001</if_sid>
+    <field name="win.eventdata.parentImage" type="pcre2">(?i)\\+ossec-agent\\+wazuh-agent\.exe$</field>
+    <field name="win.eventdata.user" type="pcre2">(?i)^NT AUTHORITY\\+SYSTEM$</field>
+    <description>SOC Lab: net user ejecutado por el agente de Wazuh (ruido de SCA), ignorado</description>
+  </rule>
+
+  <!-- Exclusion: net1.exe hijo de net.exe, como SYSTEM y desde el directorio del agente -->
+  <rule id="100004" level="0">
+    <if_sid>100001</if_sid>
+    <field name="win.eventdata.parentImage" type="pcre2">(?i)\\+(system32|syswow64)\\+net\.exe$</field>
+    <field name="win.eventdata.user" type="pcre2">(?i)^NT AUTHORITY\\+SYSTEM$</field>
+    <field name="win.eventdata.currentDirectory" type="pcre2">(?i)\\+ossec-agent\\+$</field>
+    <description>SOC Lab: net1 user hijo del chequeo del agente de Wazuh, ignorado</description>
   </rule>
 
 </group>

@@ -1,0 +1,29 @@
+title: System Information Discovery via Systeminfo
+id: 5e40a36f-5612-4731-a693-cb4d11d6f008
+status: experimental
+description: >
+    Detects execution of systeminfo.exe, used to collect operating system and
+    hardware details. Matches either the image path or the internal
+    OriginalFileName (sysinfo.exe), so a renamed copy is still detected. Each
+    event is evaluated individually; command sequences are not correlated.
+references:
+    - https://attack.mitre.org/techniques/T1082/
+    - https://github.com/GonzaloGaBa/home-soc-lab
+author: Gonzalo Barrientos
+date: 2026-11-17
+tags:
+    - attack.discovery
+    - attack.t1082
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection:
+        - Image|endswith: '\systeminfo.exe'
+        - OriginalFileName: 'sysinfo.exe'
+    condition: selection
+falsepositives:
+    - Legitimate administration, support and inventory tasks.
+    - Authorized audit scripts.
+    - Lab exercises and interactive use by the user.
+level: low

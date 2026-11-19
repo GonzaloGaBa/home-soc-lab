@@ -1,0 +1,47 @@
+title: Local Account Enumeration via Net Command
+id: d6a4295d-4ad0-498e-a7af-fa48b67999f1
+status: experimental
+description: >
+    Detects execution of net.exe or net1.exe with the "user" argument, used to
+    enumerate local user accounts. Each event is evaluated individually; command
+    sequences are not correlated. Arguments after "user" are not inspected, so
+    variants such as "net user /domain" also match.
+references:
+    - https://attack.mitre.org/techniques/T1087/001/
+    - https://github.com/GonzaloGaBa/home-soc-lab
+author: Gonzalo Barrientos
+date: 2026-11-17
+tags:
+    - attack.discovery
+    - attack.t1087.001
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_image:
+        - Image|endswith:
+              - '\net.exe'
+              - '\net1.exe'
+        - OriginalFileName:
+              - 'net.exe'
+              - 'net1.exe'
+    selection_cmdline:
+        CommandLine|re: '(?i)net1?\s+user\b'
+    filter_wazuh_agent:
+        ParentImage|endswith: '\wazuh-agent.exe'
+        User: 'NT AUTHORITY\SYSTEM'
+    filter_wazuh_agent_child:
+        ParentImage|endswith:
+            - '\system32\net.exe'
+            - '\syswow64\net.exe'
+        User: 'NT AUTHORITY\SYSTEM'
+        CurrentDirectory|endswith: '\ossec-agent\'
+    condition: selection_image and selection_cmdline and not 1 of filter_wazuh_agent*
+falsepositives:
+    - Legitimate administration, support and inventory tasks.
+    - Authorized audit scripts.
+    - Lab exercises and interactive use by the user.
+    - The Wazuh agent's own configuration checks (SCA) are excluded by the filters above.
+      The filters rely on the agent path and the SYSTEM user, so they would also hide a
+      SYSTEM-level process launched from that directory.
+level: medium
